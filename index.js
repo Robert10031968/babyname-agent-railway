@@ -1,52 +1,47 @@
 const express = require("express");
-const bodyParser = require("body-parser");
-const axios = require("axios");
-const app = express();
+const cors = require("cors");
+const OpenAI = require("openai");
 
-app.use(bodyParser.json());
+const app = express();
+app.use(express.json());
+
+app.use(
+  cors({
+    origin: "*", // lub wpisz dokładnie: "https://baby-name-generator-lime.vercel.app"
+    methods: ["POST"],
+    allowedHeaders: ["Content-Type"],
+  })
+);
+
+// Upewnij się, że masz klucz w .env jako OPENAI_API_KEY
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 app.post("/webhook/babyname", async (req, res) => {
-  const { theme, gender, count } = req.body;
-
-  let prompt = "";
-
-  if (theme.toLowerCase().includes("mix of")) {
-    prompt = `Create ${count || 10} unique baby names that blend or creatively combine the names: ${theme}.
-Return them as JSON:
-[
-  { "name": "Ancin", "summary": "A mix of Anna and Marcin..." },
-  ...
-]
-Only return raw JSON. No explanation.`;
-  } else {
-    prompt = `Generate a list of ${count || 10} unique ${gender || "neutral"} baby names inspired by the theme "${theme}".
-Each name should include a short summary with origin and meaning.
-Return a valid JSON like:
-[
-  { "name": "Nova", "summary": "Inspired by stars..." },
-  ...
-]
-No explanation, only raw JSON.`;
-  }
-
   try {
-    const openaiResponse = await axios.post(
-      "https://api.openai.com/v1/chat/completions",
-      {
-        model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: prompt }],
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        },
-      }
-    );
+    const { theme, gender, count } = req.body;
 
-    const content = openaiResponse.data.choices[0].message.content;
-    console.log("📬 OpenAI response content:\n", content);
-    const json = JSON.parse(content);
+    const prompt = `
+Generate a list of ${
+      count || 10
+    } unique ${gender} baby names based on the theme "${theme}".
+Each name should include a short description (1–2 sentences) about its origin and meaning.
+Return only JSON in this format:
+[
+  { "name": "Aveline", "summary": "A French name from the 11th century, symbolizing strength and light." },
+  ...
+]
+`;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    const rawText = response.choices[0]?.message?.content || "";
+
+    const json = JSON.parse(rawText);
 
     res.json({ namesWithMeanings: json });
   } catch (error) {
@@ -55,11 +50,6 @@ No explanation, only raw JSON.`;
   }
 });
 
-app.get("/", (req, res) => {
-  res.send("Baby Name Agent is running!");
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+app.listen(3000, () => {
+  console.log("✅ Baby Name Agent is running on port 3000");
 });
