@@ -7,9 +7,10 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: "*", // lub wpisz dokładnie: "https://baby-name-generator-lime.vercel.app"
-    methods: ["POST"],
+    origin: "https://baby-name-generator-lime.vercel.app",
+    methods: ["POST", "OPTIONS"],
     allowedHeaders: ["Content-Type"],
+    credentials: false,
   })
 );
 
