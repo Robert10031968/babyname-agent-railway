@@ -50,6 +50,10 @@ Return only JSON in this format:
   }
 });
 
-app.listen(3000, () => {
-  console.log("✅ Baby Name Agent is running on port 3000");
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`✅ Baby Name Agent is running on port ${PORT}`);
 });
+
+setInterval(() => {}, 1000 * 60 * 5);
