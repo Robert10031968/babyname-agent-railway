@@ -5,9 +5,20 @@ const OpenAI = require("openai");
 const app = express();
 app.use(express.json());
 
+const allowedOrigins = [
+  "https://baby-name-generator-lime.vercel.app",
+  "https://baby-name-generator-cutb1xmop-roberts-projects-798ae72d.vercel.app",
+];
+
 app.use(
   cors({
-    origin: "*",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["POST", "OPTIONS"],
     allowedHeaders: ["Content-Type"],
     credentials: false,
