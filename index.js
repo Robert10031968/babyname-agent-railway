@@ -19,11 +19,6 @@ app.use(
     credentials: false,
   })
 );
-    methods: ["POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type"],
-    credentials: false,
-  })
-);
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
