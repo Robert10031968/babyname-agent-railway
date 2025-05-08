@@ -8,17 +8,17 @@ app.use(express.json());
 const allowedOrigins = [
   "https://baby-name-generator-lime.vercel.app",
   "https://baby-name-generator-cutb1xmop-roberts-projects-798ae72d.vercel.app",
+  "https://baby-name-generator-92shr2mxo-roberts-projects-798ae72d.vercel.app"
 ];
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: "*",
+    methods: ["POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type"],
+    credentials: false,
+  })
+);
     methods: ["POST", "OPTIONS"],
     allowedHeaders: ["Content-Type"],
     credentials: false,
